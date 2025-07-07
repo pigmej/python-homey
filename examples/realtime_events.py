@@ -9,14 +9,17 @@ import asyncio
 import logging
 from datetime import datetime
 from homey import HomeyClient, HomeyError
+from dotenv import load_dotenv
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuration - Update these values
-HOMEY_URL = "http://192.168.1.100"  # Your Homey's IP address
-TOKEN = "your-personal-access-token"  # Your Personal Access Token
+load_dotenv()
+
+HOMEY_URL = os.getenv("HOMEY_API_URL", "http://localhost")
+TOKEN = os.getenv("HOMEY_API_TOKEN", "make-it-real-token")
 
 
 class HomeyEventMonitor:

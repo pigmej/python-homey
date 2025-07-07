@@ -36,8 +36,8 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-HOMEY_URL = os.getenv("HOMEY_URL", "http://localhost")
-TOKEN = os.getenv("TOKEN", "make-it-real-token")
+HOMEY_URL = os.getenv("HOMEY_API_URL", "http://localhost")
+TOKEN = os.getenv("HOMEY_API_TOKEN", "make-it-real-token")
 
 
 async def main():
