@@ -58,7 +58,6 @@ class DeviceManager(BaseManager):
             raise HomeyValidationError("Capability ID cannot be empty")
 
         data: Dict[str, Any] = {
-            "capabilityId": capability_id,
             "value": value,
         }
         if opts:
@@ -66,7 +65,7 @@ class DeviceManager(BaseManager):
 
         try:
             await self._put(
-                f"{self._endpoint}/{device_id}/capabilities/{capability_id}", data=data
+                f"{self._endpoint}/{device_id}/capability/{capability_id}", data=data
             )
             return True
         except Exception as e:
@@ -84,7 +83,7 @@ class DeviceManager(BaseManager):
 
         try:
             response_data = await self._get(
-                f"{self._endpoint}/{device_id}/capabilities/{capability_id}"
+                f"{self._endpoint}/{device_id}/capability/{capability_id}"
             )
             return response_data.get("value")
         except Exception as e:

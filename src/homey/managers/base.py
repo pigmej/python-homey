@@ -53,7 +53,6 @@ class BaseManager:
                     json=data,
                     params=params,
                 )
-
                 # Handle different response status codes
                 if response.status_code == 200:
                     result = response.json()
