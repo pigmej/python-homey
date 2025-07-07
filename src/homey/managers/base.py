@@ -1,6 +1,6 @@
 """Base manager class for Homey API managers."""
 
-from typing import Any, Dict, List, Optional, Type, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar
 from urllib.parse import urljoin
 
 import httpx

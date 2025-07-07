@@ -1,6 +1,6 @@
 """Device manager for the Homey API."""
 
-from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from ..exceptions import HomeyDeviceError, HomeyValidationError
 from ..models.device import Device, DeviceCapability

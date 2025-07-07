@@ -1,8 +1,8 @@
 """Zone manager for the Homey API."""
 
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from ..exceptions import HomeyZoneError, HomeyValidationError
+from ..exceptions import HomeyValidationError, HomeyZoneError
 from ..models.zone import Zone
 from .base import BaseManager
 

@@ -9,18 +9,19 @@ This example demonstrates how to:
 5. Handle errors properly
 """
 
-import os
-from dotenv import load_dotenv
 import asyncio
 import logging
+import os
 from typing import Optional
 
+from dotenv import load_dotenv
+
 from homey import (
+    App,
+    HomeyAuthenticationError,
     HomeyClient,
     HomeyConnectionError,
-    HomeyAuthenticationError,
     HomeyError,
-    App,
 )
 
 # Configure logging

@@ -7,10 +7,12 @@ such as device state changes, zone activity, flow executions, and more.
 
 import asyncio
 import logging
-from datetime import datetime
-from homey import HomeyClient, HomeyError
-from dotenv import load_dotenv
 import os
+from datetime import datetime
+
+from dotenv import load_dotenv
+
+from homey import HomeyClient, HomeyError
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

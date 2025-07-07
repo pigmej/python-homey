@@ -7,6 +7,7 @@ Replace the configuration values below with your actual Homey details.
 
 import asyncio
 import logging
+
 from homey import HomeyClient, HomeyError, get_token_url
 
 # Configure logging

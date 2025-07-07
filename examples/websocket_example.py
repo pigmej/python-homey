@@ -8,6 +8,7 @@ WebSocket functionality is completely optional and must be explicitly enabled.
 import asyncio
 import logging
 from datetime import datetime
+
 from homey import HomeyClient, HomeyError
 
 # Configure logging

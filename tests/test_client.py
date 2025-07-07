@@ -1,8 +1,9 @@
 """Tests for the HomeyClient class."""
 
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 
-from unittest.mock import Mock, AsyncMock, patch
 from homey import HomeyClient
 from homey.exceptions import (
     HomeyAuthenticationError,

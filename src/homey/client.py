@@ -7,7 +7,8 @@ explicitly enabled by calling connect_websocket().
 
 import asyncio
 import logging
-from typing import Optional, Dict, Any, Callable
+from typing import Any, Callable, Dict, Optional
+
 import websockets
 
 from .auth import HomeyAuth
@@ -16,10 +17,10 @@ from .exceptions import (
     HomeyWebSocketError,
 )
 from .managers import (
-    DeviceManager,
-    ZoneManager,
-    FlowManager,
     AppManager,
+    DeviceManager,
+    FlowManager,
+    ZoneManager,
 )
 
 logger = logging.getLogger(__name__)

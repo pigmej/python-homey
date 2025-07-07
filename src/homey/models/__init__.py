@@ -1,10 +1,10 @@
 """Data models for the Homey API."""
 
+from .app import App
 from .base import BaseModel
 from .device import Device, DeviceCapability
-from .zone import Zone
 from .flow import Flow, FlowCard
-from .app import App
+from .zone import Zone
 
 __all__ = [
     "BaseModel",

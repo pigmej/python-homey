@@ -1,6 +1,6 @@
 """Flow manager for the Homey API."""
 
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from ..exceptions import HomeyFlowError, HomeyValidationError
 from ..models.flow import Flow

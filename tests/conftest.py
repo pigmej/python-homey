@@ -1,12 +1,13 @@
 """Configuration for pytest tests."""
 
-import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock
 from typing import AsyncGenerator, Generator, Optional
+from unittest.mock import AsyncMock, Mock
+
+import pytest
 
 from homey import HomeyClient
-from homey.models import Device, Zone, Flow, App
+from homey.models import App, Device, Flow, Zone
 
 
 @pytest.fixture

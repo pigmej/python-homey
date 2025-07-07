@@ -3,7 +3,8 @@
 from datetime import datetime
 from typing import Any, Dict, Optional, Union
 
-from pydantic import BaseModel as PydanticBaseModel, Field, ConfigDict
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import ConfigDict, Field
 
 
 class BaseModel(PydanticBaseModel):

@@ -1,10 +1,10 @@
 """Manager classes for the Homey API."""
 
+from .apps import AppManager
 from .base import BaseManager
 from .devices import DeviceManager
-from .zones import ZoneManager
 from .flows import FlowManager
-from .apps import AppManager
+from .zones import ZoneManager
 
 __all__ = [
     "BaseManager",

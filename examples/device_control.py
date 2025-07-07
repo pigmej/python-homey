@@ -6,6 +6,7 @@ This example demonstrates how to control devices with your Homey.
 
 import asyncio
 import logging
+
 from homey import HomeyClient, HomeyError
 
 # Configure logging
