@@ -203,12 +203,43 @@ class DeviceManager(BaseManager):
                 f"Failed to get device flows: {str(e)}", device_id=device_id
             )
 
-    async def get_device_insights(self, device_id: str) -> List[Dict[str, Any]]:
-        """Get insights data for a device."""
+    async def get_device_insights(
+        self,
+        device_id: str,
+        capability: str,
+        resolution: Optional[str] | None = None,
+        from_timestamp: Optional[int] | None = None,
+        to_timestamp: Optional[int] | None = None,
+    ) -> Dict[str, Any]:
+        """Get insights data for a device.
+        Args:
+            device_id: The ID of the device to get insights for.
+            capability: The capability to get insights for.
+            resolution: The resolution of the insights data (optional).
+            from_timestamp: The start timestamp for the insights data (optional).
+            to_timestamp: The end timestamp for the insights data (optional).
+
+        Returns:
+            List of insights data entries.
+
+        Raises:
+            HomeyValidationError: If device_id is invalid.
+            HomeyDeviceError: If the request fails.
+        """
         self._validate_id(device_id)
         try:
-            response_data = await self._get(f"{self._endpoint}/{device_id}/insights")
-            return response_data if isinstance(response_data, list) else []
+            params = {}
+            if resolution:
+                params["resolution"] = resolution
+            if from_timestamp:
+                params["from"] = from_timestamp
+            if to_timestamp:
+                params["to"] = to_timestamp
+            response_data = await self._get(
+                f"/manager/insights/log/homey:device:{device_id}/homey:device:{device_id}:{capability}/entry",
+                params=params,
+            )
+            return response_data if isinstance(response_data, dict) else {}
         except Exception as e:
             raise HomeyDeviceError(
                 f"Failed to get device insights: {str(e)}", device_id=device_id
