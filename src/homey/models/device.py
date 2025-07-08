@@ -113,6 +113,29 @@ class Device(BaseModel):
         """Get the driver ID of the device."""
         return self.driverId
 
+    def model_dump_compact(self, *args, **kwargs) -> dict[str, Any]:
+        exc = kwargs.get("exclude", [])
+        exc.extend(
+            [
+                "icon",
+                "iconObj",
+                "iconOverride",
+                "ownerUri",
+                "driverUri",
+                "settingsObj",
+                "ui",
+                "uiIndicator",
+                "images",
+                "color",
+                "unpair",
+                "speechExamples",
+            ]
+        )
+        if not self.energy:
+            exc.append("energyObj")
+        kwargs["exclude"] = exc
+        return self.model_dump(*args, **kwargs)
+
     def __str__(self) -> str:
         """String representation of the device."""
         status = "online" if self.is_online() else "offline"
