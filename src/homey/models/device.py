@@ -53,8 +53,8 @@ class Device(BaseModel):
     )
     ready: bool = Field(True, description="Whether the device is ready")
     available: bool = Field(True, description="Whether the device is available")
-    repair: bool = Field(False, description="Whether the device needs repair")
-    unpair: bool = Field(False, description="Whether the device is unpaired")
+    repair: Optional[bool] = Field(False, description="Whether the device needs repair")
+    unpair: Optional[bool] = Field(False, description="Whether the device is unpaired")
     speechExamples: Optional[List[str]] = Field(None, description="Speech examples")
     images: Optional[List[Dict[str, Any]]] = Field(None, description="Device images")
     ui: Optional[Dict[str, Any]] = Field(None, description="UI configuration")
@@ -65,7 +65,9 @@ class Device(BaseModel):
     )
     settings: Optional[Dict[str, Any]] = Field(None, description="Device settings")
     # settingsObj: Optional[Dict[str, Any]] = Field(None, description="Settings object")
-    settingsObj: bool = Field(True, description="Whether the settings are attached")
+    settingsObj: Optional[bool] = Field(
+        True, description="Whether the settings are attached"
+    )
     store: Optional[Dict[str, Any]] = Field(None, description="Device store data")
     flags: Optional[List[str]] = Field(None, description="Device flags")
     virtualClass: Optional[str] = Field(None, description="Virtual device class")

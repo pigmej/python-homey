@@ -222,3 +222,20 @@ class ZoneManager(BaseManager):
 
         collect_descendants(zone_id)
         return descendants
+
+    async def get_zone_temperature(self, zone_id: str) -> float:
+        devices = await self.client.devices.get_devices_by_zone(zone_id)
+        candidates = []
+        for device in devices:
+            if "measure_temperature" in device.capabilities:
+                if (
+                    device.settings.get("climate_exclude", False) is False
+                    and device.class_
+                    == "sensor"  # Filter sensors excluded from the climate and other devices that are NOT sensors too TODO check thermostats
+                ):
+                    candidates.append(
+                        device.capabilitiesObj["measure_temperature"].value
+                    )
+        if not candidates:
+            raise HomeyZoneError("Aplicable devices not found")
+        return round(sum(candidates) / len(candidates), 1)
