@@ -1,6 +1,6 @@
 """Device manager for the Homey API."""
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from ..exceptions import HomeyDeviceError, HomeyValidationError
 from ..models.device import Device, DeviceCapability
@@ -180,15 +180,16 @@ class DeviceManager(BaseManager):
         all_devices = await self.get_devices()
         classes = set()
         for device in all_devices:
-            classes.add(device.class_)
+            if device.class_ is not None:
+                classes.add(device.class_)
         return list(classes)
 
     async def get_devices_capabilities(self) -> List[str]:
         "Get all possible device capabilities"
         all_devices = await self.get_devices()
-        caps = set()
+        caps: Set[str] = set()
         for device in all_devices:
-            caps.update(device.capabilities)
+            caps.update(cap for cap in device.capabilities if cap is not None)
         return list(caps)
 
     async def get_device_flows(self, device_id: str) -> List[Dict[str, Any]]:

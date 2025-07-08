@@ -113,7 +113,7 @@ class Device(BaseModel):
         """Get the driver ID of the device."""
         return self.driverId
 
-    def model_dump_compact(self, *args, **kwargs) -> dict[str, Any]:
+    def model_dump_compact(self, *args, **kwargs) -> Dict[str, Any]:
         exc = kwargs.get("exclude", [])
         exc.extend(
             [
