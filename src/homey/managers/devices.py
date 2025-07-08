@@ -152,7 +152,7 @@ class DeviceManager(BaseManager):
         all_devices = await self.get_devices()
         return [device for device in all_devices if not device.is_online()]
 
-    async def search_devices(self, query: str) -> List[Device]:
+    async def search_devices_by_name(self, query: str) -> List[Device]:
         """Search devices by name."""
         if not query:
             raise HomeyValidationError("Search query cannot be empty")
@@ -164,6 +164,32 @@ class DeviceManager(BaseManager):
             for device in all_devices
             if device.name and query_lower in device.name.lower()
         ]
+
+    async def search_devices_by_class(self, query: str) -> List[Device]:
+        "Search devices by device class"
+        all_devices = await self.get_devices()
+        query_lower = query.lower()
+        return [
+            device
+            for device in all_devices
+            if device.name and query_lower in device.name.lower()
+        ]
+
+    async def get_device_classes(self) -> List[str]:
+        "Get all possible device classes"
+        all_devices = await self.get_devices()
+        classes = set()
+        for device in all_devices:
+            classes.add(device.class_)
+        return list(classes)
+
+    async def get_devices_capabilities(self) -> List[str]:
+        "Get all possible device capabilities"
+        all_devices = await self.get_devices()
+        caps = set()
+        for device in all_devices:
+            caps.update(device.capabilities)
+        return list(caps)
 
     async def get_device_flows(self, device_id: str) -> List[Dict[str, Any]]:
         """Get flows associated with a device."""
