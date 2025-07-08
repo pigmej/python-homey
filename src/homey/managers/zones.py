@@ -231,7 +231,10 @@ class ZoneManager(BaseManager):
                 if (
                     device.settings.get("climate_exclude", False) is False
                     and device.class_
-                    == "sensor"  # Filter sensors excluded from the climate and other devices that are NOT sensors too TODO check thermostats
+                    in (
+                        "sensor",
+                        "airconditioning",
+                    )  # Filter sensors excluded from the climate and other devices that are NOT sensors too TODO check thermostats
                 ):
                     candidates.append(
                         device.capabilitiesObj["measure_temperature"].value
