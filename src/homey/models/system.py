@@ -26,11 +26,22 @@ class SystemConfig(BaseModel):
 
     def __init__(self, **data: Any) -> None:
         """Initialize SystemConfig with flexible data structure."""
+        # Normalize location data structure if present
+        if "location" in data and isinstance(data["location"], dict):
+            location_data = data["location"]
+            if "value" in location_data and isinstance(location_data["value"], dict):
+                # Extract location data from nested 'value' structure
+                data["location"] = location_data["value"]
+
         super().__init__(**data)
 
     def update_location(self, location: Dict[str, Any]) -> None:
         """Update location information."""
-        self.location = location
+        # Normalize location data structure if it has nested 'value'
+        if "value" in location and isinstance(location["value"], dict):
+            self.location = location["value"]
+        else:
+            self.location = location
 
     def update_address(self, address: str) -> None:
         """Update address information."""
