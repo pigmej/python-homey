@@ -115,6 +115,8 @@ from .managers import (
     ZoneManager,
 )
 from .models import (
+    AdvancedFlow,
+    AdvancedFlowBlock,
     App,
     BaseModel,
     Device,
@@ -155,6 +157,8 @@ __all__ = [
     "Zone",
     "Flow",
     "FlowCard",
+    "AdvancedFlow",
+    "AdvancedFlowBlock",
     "App",
     # Managers
     "BaseManager",

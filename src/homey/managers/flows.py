@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from ..exceptions import HomeyFlowError, HomeyValidationError
-from ..models.flow import Flow
+from ..models.flow import AdvancedFlow, Flow
 from .base import BaseManager
 
 if TYPE_CHECKING:
@@ -17,6 +17,7 @@ class FlowManager(BaseManager):
         """Initialize the flow manager."""
         super().__init__(client)
         self._endpoint = "/manager/flow/flow"
+        self._advanced_endpoint = "/manager/flow/advancedflow"
 
     async def get_flows(self) -> List[Flow]:
         """Get all flows."""
@@ -155,16 +156,6 @@ class FlowManager(BaseManager):
         all_flows = await self.get_flows()
         return [flow for flow in all_flows if flow.is_broken()]
 
-    async def get_advanced_flows(self) -> List[Flow]:
-        """Get all advanced flows."""
-        all_flows = await self.get_flows()
-        return [flow for flow in all_flows if flow.is_advanced()]
-
-    async def get_basic_flows(self) -> List[Flow]:
-        """Get all basic (non-advanced) flows."""
-        all_flows = await self.get_flows()
-        return [flow for flow in all_flows if not flow.is_advanced()]
-
     async def search_flows(self, query: str) -> List[Flow]:
         """Search flows by name."""
         if not query:
@@ -302,28 +293,215 @@ class FlowManager(BaseManager):
         """Move a flow to a folder (or remove from folder if folder_id is None)."""
         return await self.update_flow(flow_id, folder=folder_id)
 
-    async def get_recently_executed_flows(self, limit: int = 10) -> List[Flow]:
-        """Get recently executed flows."""
-        if limit <= 0:
-            raise HomeyValidationError("Limit must be greater than 0")
+    # Advanced Flow Methods
+    async def get_advanced_flows(self) -> List[AdvancedFlow]:
+        """Get all advanced flow objects."""
+        try:
+            response_data = await self._get(self._advanced_endpoint)
+            # Advanced flows are returned as a dictionary with flow IDs as keys
+            if isinstance(response_data, dict):
+                flows = []
+                for flow_id, flow_data in response_data.items():
+                    flow_data["id"] = flow_id
+                    flows.append(AdvancedFlow(**flow_data))
+                return flows
+            return []
+        except Exception as e:
+            raise HomeyFlowError(f"Failed to get advanced flow objects: {str(e)}")
 
-        all_flows = await self.get_flows()
-        # Filter flows that have been executed and sort by last execution
-        executed_flows = [flow for flow in all_flows if flow.lastExecuted]
-        executed_flows.sort(key=lambda x: x.lastExecuted or "", reverse=True)
-        return executed_flows[:limit]
+    async def get_advanced_flow(self, flow_id: str) -> AdvancedFlow:
+        """Get a specific advanced flow by ID."""
+        self._validate_id(flow_id)
+        try:
+            response_data = await self._get(f"{self._advanced_endpoint}/{flow_id}")
+            response_data["id"] = flow_id
+            return AdvancedFlow(**response_data)
+        except Exception as e:
+            raise HomeyFlowError(
+                f"Failed to get advanced flow: {str(e)}", flow_id=flow_id
+            )
 
-    async def get_most_executed_flows(self, limit: int = 10) -> List[Flow]:
-        """Get most frequently executed flows."""
-        if limit <= 0:
-            raise HomeyValidationError("Limit must be greater than 0")
+    async def create_advanced_flow(self, name: str, **kwargs: Any) -> AdvancedFlow:
+        """Create a new advanced flow."""
+        if not name or not name.strip():
+            raise HomeyValidationError("Advanced flow name cannot be empty")
 
-        all_flows = await self.get_flows()
-        # Filter flows that have execution count and sort by count
-        executed_flows = [
-            flow
-            for flow in all_flows
-            if flow.executionCount and flow.executionCount > 0
+        data = {"name": name.strip()}
+
+        # Add optional parameters
+        if "enabled" in kwargs:
+            data["enabled"] = kwargs["enabled"]
+        if "folder" in kwargs:
+            data["folder"] = kwargs["folder"]
+        if "cards" in kwargs:
+            data["cards"] = kwargs["cards"]
+
+        try:
+            response_data = await self._post(self._advanced_endpoint, data=data)
+            if "id" in response_data:
+                flow_id = response_data["id"]
+                response_data["id"] = flow_id
+                return AdvancedFlow(**response_data)
+            else:
+                # If no ID in response, fetch the created flow
+                return await self.get_advanced_flow(
+                    response_data.get("result", {}).get("id")
+                )
+        except Exception as e:
+            raise HomeyFlowError(f"Failed to create advanced flow: {str(e)}")
+
+    async def update_advanced_flow(self, flow_id: str, **kwargs: Any) -> AdvancedFlow:
+        """Update an existing advanced flow."""
+        self._validate_id(flow_id)
+
+        data = {}
+        allowed_fields = [
+            "name",
+            "enabled",
+            "folder",
+            "cards",
         ]
-        executed_flows.sort(key=lambda x: x.executionCount or 0, reverse=True)
-        return executed_flows[:limit]
+
+        for field in allowed_fields:
+            if field in kwargs:
+                if field == "name" and kwargs[field] is not None:
+                    if not kwargs[field].strip():
+                        raise HomeyValidationError("Advanced flow name cannot be empty")
+                    data[field] = kwargs[field].strip()
+                else:
+                    data[field] = kwargs[field]
+
+        if not data:
+            raise HomeyValidationError("At least one field must be provided for update")
+
+        try:
+            response_data = await self._put(
+                f"{self._advanced_endpoint}/{flow_id}", data=data
+            )
+            response_data["id"] = flow_id
+            return AdvancedFlow(**response_data)
+        except Exception as e:
+            raise HomeyFlowError(
+                f"Failed to update advanced flow: {str(e)}", flow_id=flow_id
+            )
+
+    async def delete_advanced_flow(self, flow_id: str) -> bool:
+        """Delete an advanced flow."""
+        self._validate_id(flow_id)
+        try:
+            await self._delete(f"{self._advanced_endpoint}/{flow_id}")
+            return True
+        except Exception as e:
+            raise HomeyFlowError(
+                f"Failed to delete advanced flow: {str(e)}", flow_id=flow_id
+            )
+
+    async def enable_advanced_flow(self, flow_id: str) -> AdvancedFlow:
+        """Enable an advanced flow."""
+        return await self.update_advanced_flow(flow_id, enabled=True)
+
+    async def disable_advanced_flow(self, flow_id: str) -> AdvancedFlow:
+        """Disable an advanced flow."""
+        return await self.update_advanced_flow(flow_id, enabled=False)
+
+    async def trigger_advanced_flow(
+        self, flow_id: str, tokens: Optional[Dict[str, Any]] = None
+    ) -> bool:
+        """Trigger an advanced flow manually."""
+        self._validate_id(flow_id)
+
+        data = {}
+        if tokens:
+            data["tokens"] = tokens
+
+        try:
+            await self._post(f"{self._advanced_endpoint}/{flow_id}/trigger", data=data)
+            return True
+        except Exception as e:
+            raise HomeyFlowError(
+                f"Failed to trigger advanced flow: {str(e)}", flow_id=flow_id
+            )
+
+    async def get_enabled_advanced_flows(self) -> List[AdvancedFlow]:
+        """Get all enabled advanced flows."""
+        all_flows = await self.get_advanced_flows()
+        return [flow for flow in all_flows if flow.is_enabled()]
+
+    async def get_disabled_advanced_flows(self) -> List[AdvancedFlow]:
+        """Get all disabled advanced flows."""
+        all_flows = await self.get_advanced_flows()
+        return [flow for flow in all_flows if not flow.is_enabled()]
+
+    async def get_broken_advanced_flows(self) -> List[AdvancedFlow]:
+        """Get all broken advanced flows."""
+        all_flows = await self.get_advanced_flows()
+        return [flow for flow in all_flows if flow.is_broken()]
+
+    async def search_advanced_flows(self, query: str) -> List[AdvancedFlow]:
+        """Search advanced flows by name."""
+        if not query:
+            raise HomeyValidationError("Search query cannot be empty")
+
+        all_flows = await self.get_advanced_flows()
+        query_lower = query.lower()
+        return [
+            flow for flow in all_flows if flow.name and query_lower in flow.name.lower()
+        ]
+
+    async def get_advanced_flows_by_folder(self, folder_id: str) -> List[AdvancedFlow]:
+        """Get all advanced flows in a specific folder."""
+        self._validate_id(folder_id)
+        all_flows = await self.get_advanced_flows()
+        return [flow for flow in all_flows if flow.folder == folder_id]
+
+    async def get_advanced_flows_without_folder(self) -> List[AdvancedFlow]:
+        """Get all advanced flows that are not in any folder."""
+        all_flows = await self.get_advanced_flows()
+        return [flow for flow in all_flows if not flow.folder]
+
+    async def export_advanced_flow(self, flow_id: str) -> Dict[str, Any]:
+        """Export an advanced flow as JSON."""
+        self._validate_id(flow_id)
+        try:
+            response_data = await self._get(
+                f"{self._advanced_endpoint}/{flow_id}/export"
+            )
+            return response_data if isinstance(response_data, dict) else {}
+        except Exception as e:
+            raise HomeyFlowError(
+                f"Failed to export advanced flow: {str(e)}", flow_id=flow_id
+            )
+
+    async def import_advanced_flow(self, flow_data: Dict[str, Any]) -> AdvancedFlow:
+        """Import an advanced flow from JSON data."""
+        if not flow_data:
+            raise HomeyValidationError("Advanced flow data cannot be empty")
+
+        if "name" not in flow_data:
+            raise HomeyValidationError("Advanced flow data must contain a name")
+
+        try:
+            response_data = await self._post(
+                f"{self._advanced_endpoint}/import", data=flow_data
+            )
+            if "id" in response_data:
+                flow_id = response_data["id"]
+                response_data["id"] = flow_id
+                return AdvancedFlow(**response_data)
+            else:
+                return await self.get_advanced_flow(
+                    response_data.get("result", {}).get("id")
+                )
+        except Exception as e:
+            raise HomeyFlowError(f"Failed to import advanced flow: {str(e)}")
+
+    async def move_advanced_flow_to_folder(
+        self, flow_id: str, folder_id: Optional[str]
+    ) -> AdvancedFlow:
+        """Move an advanced flow to a folder (or remove from folder if folder_id is None)."""
+        return await self.update_advanced_flow(flow_id, folder=folder_id)
+
+    async def get_advanced_flows_with_inline_scripts(self) -> List[AdvancedFlow]:
+        """Get all advanced flows that contain inline HomeyScript blocks."""
+        all_flows = await self.get_advanced_flows()
+        return [flow for flow in all_flows if flow.has_inline_scripts()]

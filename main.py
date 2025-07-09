@@ -194,19 +194,12 @@ async def demo_flows(client: HomeyClient):
 
             logger.info(f"  {i + 1}. {flow.name} ({flow.id})")
             logger.info(f"     Status: {status}")
-            logger.info(f"     Type: {'Advanced' if flow.is_advanced() else 'Basic'}")
-            logger.info(f"     Executions: {flow.executionCount or 0}")
 
         # Show broken flows (if any)
         if broken_flows:
             logger.warning("⚠️ Broken flows found:")
             for flow in broken_flows:
                 logger.warning(f"  - {flow.name}")
-
-        # Get recently executed flows
-        recent_flows = await client.flows.get_recently_executed_flows(3)
-        if recent_flows:
-            logger.info(f"🕐 Recently executed: {[f.name for f in recent_flows]}")
 
     except Exception as e:
         logger.error(f"Flow demo error: {e}")
