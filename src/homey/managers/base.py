@@ -38,7 +38,6 @@ class BaseManager:
     ) -> Dict[str, Any]:
         """Make an HTTP request to the Homey API."""
         url = urljoin(self._base_url, endpoint.lstrip("/"))
-
         headers = {
             "Authorization": f"Bearer {self.client.token}",
             "Content-Type": "application/json",

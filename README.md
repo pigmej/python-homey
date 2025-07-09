@@ -12,7 +12,7 @@ A modern, async Python client library for the Homey v3 Local API.
 - **Type hints** - Fully typed with mypy support
 - **High-level API** - Pythonic interface that's easy to use
 - **Real-time events** - WebSocket support for real-time device updates
-- **Comprehensive coverage** - Support for devices, zones, flows, apps, and more
+- **Comprehensive coverage** - Support for devices, zones, flows, apps, system configuration, and more
 - **Error handling** - Detailed exception hierarchy for better error handling
 - **Auto-reconnection** - Automatic WebSocket reconnection with exponential backoff
 
@@ -266,6 +266,68 @@ async with HomeyClient.create(base_url="http://192.168.1.100", token="token") as
 
     # App logs
     logs = await client.apps.get_app_logs("app-id", limit=100)
+```
+
+## System Management
+
+### Working with System Configuration
+
+```python
+async with HomeyClient.create(base_url="http://192.168.1.100", token="token") as client:
+    # Get complete system configuration
+    config = await client.system.get_system_config()
+    
+    print(f"Language: {config.language}")
+    print(f"Units: {config.units}")
+    print(f"Address: {config.address}")
+    print(f"Location: {config.location}")
+    
+    # Check unit system
+    if config.is_metric():
+        print("System uses metric units")
+    elif config.is_imperial():
+        print("System uses imperial units")
+    
+    # Get location coordinates
+    coords = config.get_location_coordinates()
+    if coords:
+        print(f"Coordinates: {coords['latitude']}, {coords['longitude']}")
+```
+
+### Individual System Settings
+
+```python
+async with HomeyClient.create(base_url="http://192.168.1.100", token="token") as client:
+    # Get individual settings
+    location = await client.system.get_location()
+    address = await client.system.get_address()
+    language = await client.system.get_language()
+    units = await client.system.get_units()
+    
+    # Set individual settings
+    await client.system.set_location({"latitude": 52.3676, "longitude": 4.9041})
+    await client.system.set_address("123 Main St, City, Country")
+    await client.system.set_language("en")
+    await client.system.set_units("metric")
+```
+
+### Updating System Configuration
+
+```python
+from homey import SystemConfig
+
+async with HomeyClient.create(base_url="http://192.168.1.100", token="token") as client:
+    # Create new configuration
+    new_config = SystemConfig(
+        language="en",
+        units="metric",
+        address="123 Main St, City, Country",
+        location={"latitude": 52.3676, "longitude": 4.9041}
+    )
+    
+    # Update system with new configuration
+    updated_config = await client.system.update_system_config(new_config)
+    print(f"Updated configuration: {updated_config}")
 ```
 
 ## Real-time Events

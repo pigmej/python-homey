@@ -20,6 +20,7 @@ from .managers import (
     AppManager,
     DeviceManager,
     FlowManager,
+    SystemManager,
     ZoneManager,
 )
 
@@ -85,6 +86,7 @@ class HomeyClient:
         self.zones = ZoneManager(self)
         self.flows = FlowManager(self)
         self.apps = AppManager(self)
+        self.system = SystemManager(self)
 
         # WebSocket connection (optional)
         self._websocket: Optional[Any] = None
