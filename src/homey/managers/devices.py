@@ -152,18 +152,59 @@ class DeviceManager(BaseManager):
         all_devices = await self.get_devices()
         return [device for device in all_devices if not device.is_online()]
 
-    async def search_devices_by_name(self, query: str) -> List[Device]:
-        """Search devices by name."""
+    async def search_devices_by_name(
+        self, query: str, max_distance: int = 2
+    ) -> List[Device]:
+        """Search devices by name using Levenshtein distance."""
         if not query:
             raise HomeyValidationError("Search query cannot be empty")
 
+        def levenshtein_distance(s1: str, s2: str) -> int:
+            """Calculate Levenshtein distance between two strings."""
+            if len(s1) < len(s2):
+                return levenshtein_distance(s2, s1)
+
+            if len(s2) == 0:
+                return len(s1)
+
+            previous_row = list(range(len(s2) + 1))
+            for i, c1 in enumerate(s1):
+                current_row = [i + 1]
+                for j, c2 in enumerate(s2):
+                    insertions = previous_row[j + 1] + 1
+                    deletions = current_row[j] + 1
+                    substitutions = previous_row[j] + (c1 != c2)
+                    current_row.append(min(insertions, deletions, substitutions))
+                previous_row = current_row
+
+            return previous_row[-1]
+
         all_devices = await self.get_devices()
         query_lower = query.lower()
-        return [
+
+        exact_matches = [
             device
             for device in all_devices
             if device.name and query_lower in device.name.lower()
         ]
+        if exact_matches:
+            return exact_matches
+
+        matching_devices = []
+
+        for device in all_devices:
+            if device.name:
+                device_name_lower = device.name.lower()
+                # Check for exact substring match first (faster)
+                if query_lower in device_name_lower:
+                    matching_devices.append(device)
+                else:
+                    # Check Levenshtein distance for fuzzy matching
+                    distance = levenshtein_distance(query_lower, device_name_lower)
+                    if distance <= max_distance:
+                        matching_devices.append(device)
+
+        return matching_devices
 
     async def search_devices_by_class(self, query: str) -> List[Device]:
         "Search devices by device class"
