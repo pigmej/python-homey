@@ -50,6 +50,7 @@ class Device(BaseModel):
     insights: Optional[List[Dict[str, Any]]] = Field(
         None, description="Device insights"
     )
+    hidden: Optional[bool] = Field(None, description="Whether the device is hidden")
     ready: bool = Field(True, description="Whether the device is ready")
     available: bool = Field(True, description="Whether the device is available")
     repair: Optional[bool] = Field(False, description="Whether the device needs repair")
