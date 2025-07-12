@@ -145,6 +145,7 @@ class Device(BaseModel):
                 "created_at",
                 "updated_at",
                 "ui",
+                "hidden",
             ]
         )
         if not self.energy:
