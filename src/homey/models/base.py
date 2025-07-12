@@ -14,13 +14,8 @@ class BaseModel(PydanticBaseModel):
         extra="allow",
         validate_assignment=True,
         use_enum_values=True,
-        populate_by_name=True,
+        populate_by_name=False,
     )
-
-    id: Optional[str] = Field(None, description="Unique identifier")
-    name: Optional[str] = Field(None, description="Human-readable name")
-    created_at: Optional[datetime] = Field(None, alias="createdAt")
-    updated_at: Optional[datetime] = Field(None, alias="updatedAt")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert model to dictionary."""

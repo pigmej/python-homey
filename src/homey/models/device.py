@@ -42,7 +42,6 @@ class Device(BaseModel):
     driverUri: Optional[str] = Field(None, description="Driver URI")
     driverId: Optional[str] = Field(None, description="Driver ID")
     zone: Optional[str] = Field(None, description="Zone ID")
-    zoneName: Optional[str] = Field(None, description="Zone name")
     icon: Optional[str] = Field(None, description="Device icon")
     iconObj: Optional[Dict[str, Any]] = Field(None, description="Device icon object")
     class_: Optional[str] = Field(None, alias="class", description="Device class")
@@ -68,9 +67,11 @@ class Device(BaseModel):
     settingsObj: Optional[bool] = Field(
         True, description="Whether the settings are attached"
     )
-    store: Optional[Dict[str, Any]] = Field(None, description="Device store data")
     flags: Optional[List[str]] = Field(None, description="Device flags")
     virtualClass: Optional[str] = Field(None, description="Virtual device class")
+    note: Optional[str] = Field(
+        None, description="Device note, might contain additional information"
+    )
 
     def model_post_init(self, __context: Any) -> None:
         """Post-initialization processing."""
@@ -119,18 +120,30 @@ class Device(BaseModel):
         exc = kwargs.get("exclude", [])
         exc.extend(
             [
+                "capabilitiesObj",
+                "color",
+                "data",
+                "driverId",
+                "driver_id",
+                "driverUri",
+                "driver_url",
+                "flags",
                 "icon",
                 "iconObj",
                 "iconOverride",
-                "ownerUri",
-                "driverUri",
-                "settingsObj",
-                "ui",
-                "uiIndicator",
                 "images",
-                "color",
-                "unpair",
+                "insights",  # use get_device_insights() instead, save some more space in the output
+                "ownerUri",
+                "settingsObj",
+                "settings",
                 "speechExamples",
+                "uiIndicator",
+                "unpair",
+                "unavailableMessage",
+                "warningMessage",
+                "created_at",
+                "updated_at",
+                "ui",
             ]
         )
         if not self.energy:
