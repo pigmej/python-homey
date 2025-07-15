@@ -213,7 +213,7 @@ class DeviceManager(BaseManager):
         return [
             device
             for device in all_devices
-            if device.name and query_lower in device.name.lower()
+            if device.class_ and query_lower in device.class_.lower()
         ]
 
     async def get_device_classes(self) -> List[str]:
