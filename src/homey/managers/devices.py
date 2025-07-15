@@ -312,7 +312,9 @@ class DeviceManager(BaseManager):
         """Get device settings."""
         self._validate_id(device_id)
         try:
-            response_data = await self._get(f"{self._endpoint}/{device_id}/settings")
+            response_data = await self._get(
+                f"{self._endpoint}/{device_id}/settings_obj"
+            )
             return response_data if isinstance(response_data, dict) else {}
         except Exception as e:
             raise HomeyDeviceError(
@@ -328,7 +330,7 @@ class DeviceManager(BaseManager):
             raise HomeyValidationError("Settings cannot be empty")
 
         try:
-            await self._put(f"{self._endpoint}/{device_id}/settings", data=settings)
+            await self._put(f"{self._endpoint}/{device_id}/settings_obj", data=settings)
             return True
         except Exception as e:
             raise HomeyDeviceError(
