@@ -151,7 +151,16 @@ class Device(BaseModel):
         if not self.energy:
             exc.append("energyObj")
         kwargs["exclude"] = exc
-        return self.model_dump(*args, **kwargs)
+
+        # include compacted capabilitiesObj
+        data = self.model_dump(*args, **kwargs)
+        if self.capabilitiesObj:
+            data["capabilitiesObj"] = {
+                capability_id: capability.value
+                for capability_id, capability in self.capabilitiesObj.items()
+                if capability.value is not None
+            }
+        return data
 
     def __str__(self) -> str:
         """String representation of the device."""
