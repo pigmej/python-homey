@@ -31,13 +31,18 @@ class Flow(BaseModel):
 
     id: Optional[str] = Field(None, description="Flow ID")
     name: Optional[str] = Field(None, description="Flow name")
-    type: Optional[str] = Field(None, description="Flow type")
     enabled: bool = Field(True, description="Whether the flow is enabled")
     trigger: Optional[FlowCard] = Field(None, description="Trigger card")
     conditions: Optional[List[FlowCard]] = Field(None, description="Condition cards")
     actions: Optional[List[FlowCard]] = Field(None, description="Action cards")
     folder: Optional[str] = Field(None, description="Folder ID")
     broken: bool = Field(False, description="Whether the flow is broken")
+
+    def model_dump_compact(self, *args, **kwargs) -> Dict[str, Any]:
+        exc = kwargs.get("exclude", [])
+        exc.extend(["trigger", "actions", "conditions"])
+        kwargs["exclude"] = exc
+        return self.model_dump(*args, **kwargs)
 
     def model_post_init(self, __context: Any) -> None:
         """Post-initialization processing."""
@@ -155,7 +160,7 @@ class AdvancedFlow(BaseModel):
 
     def model_dump_compact(self, *args, **kwargs) -> Dict[str, Any]:
         exc = kwargs.get("exclude", [])
-        exc.extend(["cards"])
+        exc.extend(["cards", "trigger", "actions", "conditions"])
         kwargs["exclude"] = exc
         return self.model_dump(*args, **kwargs)
 
